@@ -13,7 +13,7 @@ Ce projet implémente une **stratégie CTA (Commodity Trading Advisor)** basée 
 
 ## Données
 
-- **Source** : `sp500.csv` — prix de clôture ajustés, 501 actions
+- **Source** : `sp500.csv` - prix de clôture ajustés, 501 actions
 - **Période analysée** : 2024-01-01 → 2026-01-01 (502 jours de trading)
 - **Actions retenues** : 15 actions sans valeurs manquantes — NVDA, AAPL, MSFT, GOOG, GOOGL, AMZN, AVGO, META, TSLA, LLY, JPM, WMT, ORCL, V, XOM
 
