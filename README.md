@@ -1,7 +1,7 @@
-# 📈 Gestion d'actifs & Data Mining — S&P 500
+# 📈 Gestion d'actifs & Data Mining - S&P 500
 
 > Stratégie CTA sur les 15 plus grandes actions du S&P 500 · PCA · Graphe de corrélations  
-> Cours *Gestion d'actifs et Data* — M2 ISIFAR · Université Paris Cité
+> Cours *Gestion d'actifs et Data* - M2 ISIFAR · Université Paris Cité
 
 ---
 
@@ -21,25 +21,25 @@ Ce projet implémente une **stratégie CTA (Commodity Trading Advisor)** basée 
 
 ## Méthodologie
 
-### Q1 — Moyennes mobiles
+### Q1 - Moyennes mobiles
 
 Calcul de la moyenne des `m` derniers jours **avant** le jour courant (sans inclure `i`), cohérent avec une stratégie de trading réelle.
 
-### Q2 — Signaux d'achat / vente
+### Q2 - Signaux d'achat / vente
 
 Détection des **croisements** cours / moyenne mobile :
 - `+1` → cours passe au-dessus (achat / long)  
 - `-1` → cours passe en dessous (vente / short)  
 - `0` → pas de signal
 
-### Q3 — Simulation du portefeuille
+### Q3 - Simulation du portefeuille
 
 - Capital initial : **100 €** réparti équitablement entre les 15 actions
 - Position maintenue jusqu'au prochain croisement
 - Rendement journalier : `(St - St-1) / St-1`
 - **Résultat pour m=10** : ~14 042 € (capital de départ 100 €)
 
-### Q4 — Sensibilité à m (fenêtre de 5 à 20 jours)
+### Q4 - Sensibilité à m (fenêtre de 5 à 20 jours)
 
 | m | Rendement (%) |
 |---|---|
@@ -49,24 +49,24 @@ Détection des **croisements** cours / moyenne mobile :
 
 Les petites fenêtres génèrent plus de signaux sur une période haussière. Ces chiffres supposent exécution parfaite sans frais de transaction.
 
-### Q5 — PCA sur les rendements logarithmiques
+### Q5 - PCA sur les rendements logarithmiques
 
 - **PC1** (~37% variance) : facteur marché global (toutes actions bougent ensemble)
 - **PC2** (~11%) : facteur sectoriel financier / value
 - **PC3** (~8%) : facteur tech
 - **3 composantes retenues** : 56% de variance cumulée
 
-### Q6 — Simplification des vecteurs propres
+### Q6 - Simplification des vecteurs propres
 
 Seuil `0.2` pour éliminer le bruit, arrondi au multiple de ±0.5.  
 Résultat : positions long/short entières interprétables économiquement.
 
-### Q7 — Stratégie CTA sur vecteurs propres
+### Q7 - Stratégie CTA sur vecteurs propres
 
 Reconstruction de prix synthétiques → stratégie CTA sur les 3 composantes.  
 **La CTA-PCA surperforme la CTA sur actions individuelles** : les composantes capturent des tendances plus persistantes (facteurs systématiques).
 
-### Q8 & Q9 — Graphe de corrélations & Minimum Spanning Tree
+### Q8 & Q9 - Graphe de corrélations & Minimum Spanning Tree
 
 - Seuil corrélation : **0.5** → cluster principal : AMZN–MSFT–META–GOOG–NVDA–AVGO
 - **MST** : AMZN et MSFT sont les hubs centraux ; LLY, WMT, XOM en périphérie offrent la meilleure diversification
