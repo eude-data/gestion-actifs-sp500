@@ -12,12 +12,12 @@ Tout le code est dans `datamining_code_python.ipynb`.
 
 ## 1. Stratégie sur moyennes mobiles
 
-- Moyenne mobile : moyenne des $m$ jours qui précèdent le jour courant, sans l'inclure.
+- Moyenne mobile : moyenne des m jours qui précèdent le jour courant, sans l'inclure.
 - Signal d'achat quand le cours passe au-dessus de sa moyenne mobile, signal de vente quand il passe en dessous.
 - Le capital de 100 € est réparti à parts égales entre les 15 actions. Après le premier signal, chaque ligne reste en position (achat ou vente à découvert) jusqu'au croisement suivant.
 - Le signal observé à la clôture d'un jour est appliqué à partir du jour suivant.
 
-| $m$ | Rendement sur la période |
+| m | Rendement sur la période |
 |---|---|
 | 5 | -12.4 % |
 | 6 | -14.0 % |
@@ -46,11 +46,11 @@ On garde 3 composantes. Pour les rendre lisibles, les poids inférieurs à 0.2 e
 
 On reconstruit un prix fictif pour chaque composante à partir de ses rendements, puis on applique la même stratégie de moyennes mobiles.
 
-La stratégie perd entre 66 % et 85 % selon $m$, bien plus que sur les actions. Les portefeuilles obtenus sont très concentrés : la première composante revient à acheter une demi-unité de 9 actions à la fois, ce qui donne une volatilité annuelle d'environ 124 %, contre 34 % en moyenne pour une action seule. Avec une telle volatilité, chaque faux signal coûte très cher. Il faudrait normaliser les composantes au même niveau de risque que les actions pour comparer les deux stratégies à armes égales.
+La stratégie perd entre 66 % et 85 % selon m, bien plus que sur les actions. Les portefeuilles obtenus sont très concentrés : la première composante revient à acheter une demi-unité de 9 actions à la fois, ce qui donne une volatilité annuelle d'environ 124 %, contre 34 % en moyenne pour une action seule. Avec une telle volatilité, chaque faux signal coûte très cher. Il faudrait normaliser les composantes au même niveau de risque que les actions pour comparer les deux stratégies à armes égales.
 
 ## 4. Graphe des corrélations et arbre couvrant minimal
 
 - Graphe des paires dont la corrélation dépasse 0.5 : on obtient un seul groupe, formé de AMZN, MSFT, META, GOOG, GOOGL, NVDA, AVGO et ORCL. Les 7 autres actions n'ont aucune corrélation au-dessus de ce seuil.
-- Arbre couvrant minimal, construit avec la distance $1 - \rho$ : AMZN est au centre de l'arbre, relié à MSFT, META, GOOGL, AAPL et JPM. LLY, WMT, XOM, TSLA et ORCL sont en bout de branche et sont donc les plus intéressantes pour diversifier.
+- Arbre couvrant minimal, construit avec la distance 1 − ρ : AMZN est au centre de l'arbre, relié à MSFT, META, GOOGL, AAPL et JPM. LLY, WMT, XOM, TSLA et ORCL sont en bout de branche et sont donc les plus intéressantes pour diversifier.
 
 Bibliothèques : numpy, pandas, matplotlib, scikit-learn, networkx.
