@@ -1,96 +1,56 @@
-# 📈 Gestion d'actifs & Data Mining - S&P 500
+# Gestion d'actifs et data mining sur le S&P 500
 
-> Stratégie CTA sur les 15 plus grandes actions du S&P 500 · PCA · Graphe de corrélations  
-> Cours *Gestion d'actifs et Data* - M2 ISIFAR · Université Paris Cité
+Projet du cours Gestion d'actifs et data, M2 ISIFAR (Université Paris Cité). On teste une stratégie de suivi de tendance (type CTA) fondée sur des moyennes mobiles, d'abord sur 15 grandes actions du S&P 500, puis sur des facteurs obtenus par analyse en composantes principales (ACP). On étudie enfin la structure de corrélation de ces actions avec un graphe et un arbre couvrant minimal.
 
----
-
-## Vue d'ensemble
-
-Ce projet implémente une **stratégie CTA (Commodity Trading Advisor)** basée sur des signaux de croisement entre cours et moyennes mobiles, appliquée à 15 actions majeures du S&P 500 sur la période 2024–2026. Il explore ensuite une approche par **réduction dimensionnelle (PCA)** pour construire des facteurs de risque systématiques plus exploitables.
-
----
+Tout le code est dans `datamining_code_python.ipynb`.
 
 ## Données
 
-- **Source** : `sp500.csv` - prix de clôture ajustés, 501 actions
-- **Période analysée** : 2024-01-01 → 2026-01-01 (502 jours de trading)
-- **Actions retenues** : 15 actions sans valeurs manquantes — NVDA, AAPL, MSFT, GOOG, GOOGL, AMZN, AVGO, META, TSLA, LLY, JPM, WMT, ORCL, V, XOM
+- Fichier `sp500.csv` : prix de clôture ajustés de 501 actions du S&P 500, réduits à la période étudiée.
+- Période : du 2 janvier 2024 au 31 décembre 2025, soit 502 jours de bourse.
+- Actions retenues : les 15 premières colonnes sans valeur manquante sur la période, à savoir NVDA, AAPL, MSFT, GOOG, GOOGL, AMZN, AVGO, META, TSLA, LLY, JPM, WMT, ORCL, V et XOM.
 
----
+## 1. Stratégie sur moyennes mobiles
 
-## Méthodologie
+- Moyenne mobile : moyenne des $m$ jours qui précèdent le jour courant, sans l'inclure.
+- Signal d'achat quand le cours passe au-dessus de sa moyenne mobile, signal de vente quand il passe en dessous.
+- Le capital de 100 € est réparti à parts égales entre les 15 actions. Après le premier signal, chaque ligne reste en position (achat ou vente à découvert) jusqu'au croisement suivant.
+- Le signal observé à la clôture d'un jour est appliqué à partir du jour suivant.
 
-### Q1 - Moyennes mobiles
-
-Calcul de la moyenne des `m` derniers jours **avant** le jour courant (sans inclure `i`), cohérent avec une stratégie de trading réelle.
-
-### Q2 - Signaux d'achat / vente
-
-Détection des **croisements** cours / moyenne mobile :
-- `+1` → cours passe au-dessus (achat / long)  
-- `-1` → cours passe en dessous (vente / short)  
-- `0` → pas de signal
-
-### Q3 - Simulation du portefeuille
-
-- Capital initial : **100 €** réparti équitablement entre les 15 actions
-- Position maintenue jusqu'au prochain croisement
-- Rendement journalier : `(St - St-1) / St-1`
-- **Résultat pour m=10** : ~14 042 € (capital de départ 100 €)
-
-### Q4 - Sensibilité à m (fenêtre de 5 à 20 jours)
-
-| m | Rendement (%) |
+| $m$ | Rendement sur la période |
 |---|---|
-| 5 | ~73 000% |
-| 10 | ~13 900% |
-| 20 | ~2 600% |
+| 5 | -12.4 % |
+| 6 | -14.0 % |
+| 10 | +4.1 % |
+| 11 | +7.1 % |
+| 15 | -2.8 % |
+| 20 | -5.0 % |
 
-Les petites fenêtres génèrent plus de signaux sur une période haussière. Ces chiffres supposent exécution parfaite sans frais de transaction.
+Sur deux ans, la stratégie gagne peu ou perd selon la fenêtre. Les fenêtres courtes changent souvent de position pour rien, et les meilleurs résultats sont obtenus autour de 10 jours. À titre de comparaison, acheter les 15 actions à parts égales et les garder rapporte environ +102 % sur la même période : sur un marché aussi haussier, les ventes à découvert coûtent cher.
 
-### Q5 - PCA sur les rendements logarithmiques
+Ces résultats ne tiennent compte ni des frais de transaction ni du coût de la vente à découvert.
 
-- **PC1** (~37% variance) : facteur marché global (toutes actions bougent ensemble)
-- **PC2** (~11%) : facteur sectoriel financier / value
-- **PC3** (~8%) : facteur tech
-- **3 composantes retenues** : 56% de variance cumulée
+## 2. ACP sur les rendements logarithmiques
 
-### Q6 - Simplification des vecteurs propres
+L'ACP est faite sur les rendements logarithmiques standardisés.
 
-Seuil `0.2` pour éliminer le bruit, arrondi au multiple de ±0.5.  
-Résultat : positions long/short entières interprétables économiquement.
+| Composante | Variance expliquée | Variance cumulée | Lecture |
+|---|---|---|---|
+| CP1 | 37.9 % | 37.9 % | facteur de marché : toutes les actions ont un poids positif |
+| CP2 | 10.8 % | 48.6 % | valeurs défensives et financières (JPM, WMT, V, XOM) contre semi-conducteurs et logiciels (NVDA, AVGO, ORCL) |
+| CP3 | 8.1 % | 56.7 % | Alphabet (GOOG, GOOGL) contre NVDA, AVGO, ORCL et LLY |
 
-### Q7 - Stratégie CTA sur vecteurs propres
+On garde 3 composantes. Pour les rendre lisibles, les poids inférieurs à 0.2 en valeur absolue sont mis à zéro et les autres sont arrondis à ±0.5, ce qui revient à acheter ou vendre une unité de chaque action concernée.
 
-Reconstruction de prix synthétiques → stratégie CTA sur les 3 composantes.  
-**La CTA-PCA surperforme la CTA sur actions individuelles** : les composantes capturent des tendances plus persistantes (facteurs systématiques).
+## 3. Stratégie sur les composantes
 
-### Q8 & Q9 - Graphe de corrélations & Minimum Spanning Tree
+On reconstruit un prix fictif pour chaque composante à partir de ses rendements, puis on applique la même stratégie de moyennes mobiles.
 
-- Seuil corrélation : **0.5** → cluster principal : AMZN–MSFT–META–GOOG–NVDA–AVGO
-- **MST** : AMZN et MSFT sont les hubs centraux ; LLY, WMT, XOM en périphérie offrent la meilleure diversification
+La stratégie perd entre 66 % et 85 % selon $m$, bien plus que sur les actions. Les portefeuilles obtenus sont très concentrés : la première composante revient à acheter une demi-unité de 9 actions à la fois, ce qui donne une volatilité annuelle d'environ 124 %, contre 34 % en moyenne pour une action seule. Avec une telle volatilité, chaque faux signal coûte très cher. Il faudrait normaliser les composantes au même niveau de risque que les actions pour comparer les deux stratégies à armes égales.
 
----
+## 4. Graphe des corrélations et arbre couvrant minimal
 
-## Structure du projet
+- Graphe des paires dont la corrélation dépasse 0.5 : on obtient un seul groupe, formé de AMZN, MSFT, META, GOOG, GOOGL, NVDA, AVGO et ORCL. Les 7 autres actions n'ont aucune corrélation au-dessus de ce seuil.
+- Arbre couvrant minimal, construit avec la distance $1 - \rho$ : AMZN est au centre de l'arbre, relié à MSFT, META, GOOGL, AAPL et JPM. LLY, WMT, XOM, TSLA et ORCL sont en bout de branche et sont donc les plus intéressantes pour diversifier.
 
-```
-gestion-actifs-sp500/
-├── datamining_code_python.ipynb   # Notebook complet avec résultats
-├── sp500.csv                      # Données (non versionnées)
-└── README.md
-```
-
----
-
-## Stack technique
-
-`Python 3.10+` · `numpy` · `pandas` · `matplotlib` · `sklearn` (PCA, StandardScaler) · `networkx`
-
----
-
-## Auteur
-
-**Eude Géro Dekadjevi** · M2 ISIFAR · Université Paris Cité  
-[LinkedIn](https://www.linkedin.com/in/eude-gero-dekadjevi-56924722a) · [GitHub](https://github.com/eude-data)
+Bibliothèques : numpy, pandas, matplotlib, scikit-learn, networkx.
